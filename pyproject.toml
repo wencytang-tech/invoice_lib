@@ -1,0 +1,19 @@
+[project]
+name = "invoice-lib"
+version = "0.1.0"
+description = "中国电子发票解析核心:双引擎解析/勾稽校验/OCR/PDF渲染/金额大写"
+requires-python = ">=3.9"
+dependencies = [
+    "pdfplumber>=0.11",
+    "Pillow>=10",
+]
+
+[project.optional-dependencies]
+ocr = ["pytesseract>=0.3"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["invoice_lib*"]
