@@ -7,7 +7,7 @@ from invoice_lib import (InvoiceParser, number_to_chinese_upper,
                          OCR_AVAILABLE)
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURE_PDF = os.path.join(_DIR, 'fixtures', 'sample_invoice.pdf')
+FIXTURE_PDF = os.path.join(_DIR, 'fixtures', 'synthetic_invoice.pdf')
 
 NORMAL_TEXT = """电子发票（普通发票）
 发票号码：21442000000770468063
@@ -134,13 +134,16 @@ class ParseTest(unittest.TestCase):
         self.assertTrue(any('价税合计' in i for i in
                             self.p.validate_invoice(d2, items)))
 
-    def test_analyze_pdf_fixture(self):
+    def test_analyze_pdf_synthetic(self):
+        """合成ASCII票样:管线可运行,字段为空并标记号码异常(无真实数据)。"""
         if not os.path.exists(FIXTURE_PDF):
-            self.skipTest('缺样例PDF')
+            self.skipTest('缺合成样例PDF')
         result = self.p.analyze_pdf(FIXTURE_PDF)
-        self.assertEqual(result['invoice_data']['invoice_number'],
-                         '21952000000260605490')
-        self.assertEqual(len(result['line_items']), 2)
+        # 假20位号可被提取,买方/销方缺失触发issues
+        self.assertEqual(result['invoice_data'].get('invoice_number', ''),
+                         '00000000000000000001')
+        self.assertEqual(result['line_items'], [])
+        self.assertTrue(any('购买方' in i for i in result['issues']))
 
     def test_render_pdf_pages_capped(self):
         if not os.path.exists(FIXTURE_PDF):
